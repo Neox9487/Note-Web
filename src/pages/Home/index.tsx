@@ -4,36 +4,38 @@ import { useNavigate } from "react-router-dom";
 import styles from "./index.module.scss";
 
 import { Tags } from "../../constants/Tags";
+
 import addNote from "../../api/note/addNote";
 import updateNote from "../../api/note/updateNote";
 import deleteNote from "../../api/note/deleteNote";
 import getNotesByMonth from "../../api/note/getNotesByMonth";
 
-type Note = { 
-  id: number; 
-  date: string; 
-  title: string; 
-  content: string; 
-  tags: string[]; 
-}
+import NoteEditor from "../../widgets/NoteEditor";
+import NoteCreater from "../../widgets/NoteCreater";
+
+type Note = {
+  id: number;
+  date: string;
+  title: string;
+  content: string;
+  tags: string[];
+};
+
 
 export default function Home() {
   const today = new Date();
   const [level, setLevel] = useState<string>("month");
-
   const [currentYear, setCurrentYear] = useState<number>(today.getFullYear());
-  const [currentMonth, setCurrentMonth] = useState<number>(today.getMonth()); // 0-11
+  const [currentMonth, setCurrentMonth] = useState<number>(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string>(
     `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`
   );
-  
   const [notes, setNotes] = useState<Note[]>([]);
   const [noteCountMap, setNoteCountMap] = useState<Record<string, number>>({});
-
-  const [loadingAdd, setLoadingAdd] = useState(false);
-  const [loadingSaveId, setLoadingSaveId] = useState<number | null>(null);
-  const [loadingDeleteId, setLoadingDeleteId] = useState<number | null>(null);
-
+  const [adding, setAdding] = useState<boolean>(false);
+  const [loadingAdd, setLoadingAdd] = useState<boolean>(false);
+  const [loadingSave, setLoadingSave] = useState<boolean>(false);
+  const [loadingDelete, setLoadingDelete] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const months = Array.from({ length: 12 }, (_, i) =>
@@ -41,7 +43,7 @@ export default function Home() {
   );
 
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const startDay = new Date(currentYear, currentMonth, 1).getDay(); // 0-6 (Sun-Sat)
+  const startDay = new Date(currentYear, currentMonth, 1).getDay();
 
   useEffect(() => {
     const countMap: Record<string, number> = {};
@@ -52,19 +54,8 @@ export default function Home() {
   }, [notes]);
 
   useEffect(() => {
-    // getNotesByMonth(currentYear, currentMonth + 1)
-    //   .then((result) => {
-    //     if (result.success) {
-    //       setNotes(result.notes);
-    //     } else {
-    //       alert(result.message);
-    //     }
-    //   })
-    //   .catch(() => {
-    //     alert("載入筆記失敗");
-    //     navigate("/login");
-    //   });
-    
+    // loadNotes();
+
     // test
     const testNotes = [
       { id: 1, date: "20250701", title: "Note 1", content: "內容 A", tags: ["work"] },
@@ -80,8 +71,22 @@ export default function Home() {
       { id: 10, date: "20250731", title: "Note 10", content: "內容 J", tags: ["end"] },
     ];
     setNotes(testNotes);
-
   }, [currentYear, currentMonth, navigate]);
+
+  const loadNotes = () => {
+    getNotesByMonth(currentYear, currentMonth + 1)
+      .then((result) => {
+        if (result.success) {
+          setNotes(result.notes);
+        } else {
+          alert(result.message);
+        }
+      })
+      .catch(() => {
+        alert("載入筆記失敗");
+        navigate("/login");
+      });
+  }
 
   const handlePrev = () => {
     if (level === "year") {
@@ -118,6 +123,40 @@ export default function Home() {
     setLevel("month");
   };
 
+  const handleNoteSave = (id: number, title: string, content: string, tags: string[]) => {
+    setLoadingSave(true);
+    updateNote(id ,title, content, tags)
+      .then((result)=>{
+        if(result.success) {
+          setLoadingSave(false);
+          loadNotes();
+        }
+        else 
+          alert(result.message);
+      })
+  }
+
+  const handleNoteDelete = (id: number) => {
+    setLoadingDelete(true);
+    deleteNote(id)
+      .then((result)=>{
+        if(result.success) {
+          setLoadingDelete(false);
+          loadNotes();
+        }
+        else 
+          alert(result.message);
+      })
+  }
+
+  const handleAddNote = (title: string, content: string, date:string, tags: string[]) => {
+    setLoadingAdd(true);
+    addNote(title, content, date, tags)
+      .then(()=>{
+
+      });
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.calendar}>
@@ -153,19 +192,17 @@ export default function Home() {
               {Array.from({ length: 42 }).map((_, i) => {
                 const dayNum = i - startDay + 1;
                 const isValid = dayNum > 0 && dayNum <= daysInMonth;
-
                 const y = currentYear.toString();
                 const m = String(currentMonth + 1).padStart(2, "0");
                 const d = String(dayNum).padStart(2, "0");
                 const ymd = `${y}${m}${d}`;
-                
                 if (isValid)
                   return (
                     <div
                       className={`${styles.dayBox} ${styles.valid}`}
                       key={i}
                       onClick={() => setSelectedDate(ymd)}
-                    > 
+                    >
                       <p className={styles.day}>{dayNum}</p>
                       <div className={styles.dotContainer}>
                         {Array.from({ length: noteCountMap[ymd] || 0 }).map((_, i) => (
@@ -174,141 +211,24 @@ export default function Home() {
                       </div>
                     </div>
                   );
-                else 
-                  return (
-                    <div
-                      className={`${styles.dayBox} ${styles.invalid}`}
-                      key={i}
-                    >
-                      -
-                    </div>
-                  );
+                else
+                  return <div className={`${styles.dayBox} ${styles.invalid}`} key={i}>-</div>;
               })}
             </div>
           )}
         </div>
       </div>
-      <div className={styles.noteEditor}>
-        <h1 className={styles.date}>
-          {selectedDate.slice(0, 4)} / {selectedDate.slice(4, 6)} / {selectedDate.slice(6, 8)}
-        </h1>
 
-        <div
-          className={styles.addButton}
-          onClick={async () => {
-            if (loadingAdd) return;
-            setLoadingAdd(true);
-            const result = await addNote("新筆記", "", selectedDate, []);
-            setLoadingAdd(false);
-            if (result.success && result.id !== -1) {
-              const newNote = {
-                id: result.id,
-                title: "新筆記",
-                content: "",
-                date: selectedDate,
-                tags: [],
-              };
-              setNotes((prev) => [...prev, newNote]);
-              setNoteCountMap((prev) => ({
-                ...prev,
-                [selectedDate]: (prev[selectedDate] || 0) + 1,
-              }));
-            }
-            alert(result.message);
-          }}
-        >
-          {loadingAdd ? "新增中..." : "+ 新增筆記"}
-        </div>
-        
-        {notes.filter(note => note.date === selectedDate).length === 0 ? (
-          <p>這天沒有筆記</p>
-        ) : (
-          notes
-            .filter(note => note.date === selectedDate)
-            .map((note) => (
-              <div key={note.id} className={styles.editeSection}>
-                <div className={styles.title}>
-                  <label>Title</label>
-                  <input
-                    type="text"
-                    value={note.title}
-                    onChange={(e) =>
-                      setNotes(notes.map(n => n.id === note.id ? { ...n, title: e.target.value } : n))
-                    }
-                  />
-                </div>
-                  
-                <div className={styles.content}>
-                  <label>Content</label>
-                  <textarea
-                    value={note.content}
-                    onChange={(e) =>
-                      setNotes(notes.map(n => n.id === note.id ? { ...n, content: e.target.value } : n))
-                    }
-                  />
-                </div>
-                  
-                <div className={styles.tagSelections}>
-                  <label>Tags</label>
-                  <div className={styles.tagOptions}>
-                    {Tags.map((tag) => (
-                      <label key={tag} className={styles.tag}>
-                        <input
-                          type="checkbox"
-                          checked={note.tags.includes(tag)}
-                          onChange={(e) => {
-                            const newTags = e.target.checked
-                              ? [...note.tags, tag]
-                              : note.tags.filter(t => t !== tag);
-                            setNotes(notes.map(n => n.id === note.id ? { ...n, tags: newTags } : n));
-                          }}
-                        />
-                        {tag}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                  
-                <div className={styles.actions}>
-                  <button
-                    disabled={loadingSaveId === note.id}
-                    onClick={async () => {
-                      if (loadingSaveId === note.id) return;
-                      setLoadingSaveId(note.id);
-                      const result = await updateNote(note.id, note.title, note.content, note.tags);
-                      setLoadingSaveId(null);
-                      alert(result.message);
-                    }}
-                  >
-                    {loadingSaveId === note.id ? "儲存中..." : "儲存"}
-                  </button>
-                  <button
-                    disabled={loadingDeleteId === note.id}
-                    onClick={async () => {
-                      if (loadingDeleteId === note.id) return;
-                      const confirmDelete = window.confirm("確定要刪除這筆筆記嗎？");
-                      if (!confirmDelete) return;
-                      setLoadingDeleteId(note.id);
-                      const result = await deleteNote(note.id);
-                      setLoadingDeleteId(null);
-                      if (result.success) {
-                        setNotes(notes.filter((n) => n.id !== note.id));
-                        setNoteCountMap((prev) => {
-                          const updated = { ...prev };
-                          if (updated[note.date]) updated[note.date]--;
-                          if (updated[note.date] === 0) delete updated[note.date];
-                          return updated;
-                        });
-                      }
-                      alert(result.message);
-                    }}
-                  >
-                    {loadingDeleteId === note.id ? "刪除中..." : "刪除"}
-                  </button>
-                </div>
-              </div>
-            ))
-        )}
+      <div className={styles.notes}>
+        {notes.length === 0 && <div className={styles.notesLabel}>這個日期沒有筆記</div>}
+        {notes.map((note)=>{
+          if (note.date === selectedDate) {}
+            return(
+              <NoteEditor id={note.id} title={note.title} content={note.content} tags={note.tags} onSaved={handleNoteSave} onDeleted={handleNoteDelete} loading={loadingAdd || loadingDelete || loadingSave}/>
+            )
+        })}
+        {!adding && <div className={styles.button} onClick={()=>setAdding(true)}>+add</div>}
+        {adding && <NoteCreater date={selectedDate} onCreated={handleAddNote} loading={loadingAdd || loadingDelete || loadingSave}/>}
       </div>
     </div>
   );

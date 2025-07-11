@@ -8,7 +8,7 @@ type Result = {
 
 export default async function addNote(
   title: string,
-  description: string,
+  content: string,
   date: string,
   tags: string[] 
 ): Promise<Result> {
@@ -16,7 +16,7 @@ export default async function addNote(
   try {
     const result = await axios.post(
       `${import.meta.env.VITE_API_URL}/note/add`,
-      { title, description, date, tags },
+      { title, content, date, tags },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

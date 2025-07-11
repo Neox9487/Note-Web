@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import styles from "./index.module.scss";
-import { Tags } from "../../constants/Tags";
+import { Tags } from "../constants/Tags";
 
-import Loading from "../Loading";
-import fetchMe from "../../api/user/me";
+import Loading from "../widgets/Loading";
+import fetchMe from "../api/user/me";
 
 const menuOptions = [
   {label: "Home", path: "/"},
