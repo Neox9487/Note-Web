@@ -1,0 +1,38 @@
+export const Tags = [
+  "concept",
+  "summary",
+  "reference",
+  "quote",
+  "example",
+  "todo",
+
+  "bug",
+  "snippet",
+  "how-to",
+  "setup",
+  "debug",
+  "refactor",
+  "performance",
+  "api",
+
+  "idea",
+  "draft",
+  "thoughts",
+  "brainstorm",
+  "question",
+
+  "meeting",
+  "task",
+  "log",
+  "plan",
+  "deadline",
+  "priority",
+
+  "journal",
+  "habit",
+  "health",
+  "finance",
+  "book",
+  "travel",
+  "wishlist",
+]
