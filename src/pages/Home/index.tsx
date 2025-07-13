@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import styles from "./index.module.scss";
 
-import { Tags } from "../../constants/Tags";
-
 import addNote from "../../api/note/addNote";
 import updateNote from "../../api/note/updateNote";
 import deleteNote from "../../api/note/deleteNote";
@@ -21,6 +19,7 @@ type Note = {
   tags: string[];
 };
 
+const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function Home() {
   const today = new Date();
@@ -58,17 +57,16 @@ export default function Home() {
 
     // test
     const testNotes = [
-      { id: 1, date: "20250701", title: "Note 1", content: "內容 A", tags: ["work"] },
-      { id: 66, date: "20250701", title: "Note 22", content: "內容 @@@@", tags: ["work"] },
-      { id: 2, date: "20250501", title: "Note 2", content: "內容 B", tags: ["life"] },
-      { id: 3, date: "20250603", title: "Note 3", content: "內容 C", tags: [] },
-      { id: 4, date: "20250705", title: "Note 4", content: "內容 D", tags: ["idea"] },
-      { id: 5, date: "20250805", title: "Note 5", content: "內容 E", tags: [] },
-      { id: 6, date: "20250710", title: "Note 6", content: "內容 F", tags: ["plan"] },
-      { id: 7, date: "20250710", title: "Note 7", content: "內容 G", tags: ["plan"] },
-      { id: 8, date: "20250815", title: "Note 8", content: "內容 H", tags: [] },
-      { id: 9, date: "20250920", title: "Note 9", content: "內容 I", tags: ["project"] },
-      { id: 10, date: "20250731", title: "Note 10", content: "內容 J", tags: ["end"] },
+      { id: 11, date: "20250712", title: "週會紀要", content: "與團隊討論新版 API 設計與時程。", tags: ["meeting", "api"] },
+      { id: 12, date: "20250711", title: "健檢報告摘要", content: "膽固醇偏高，需要注意飲食與運動。", tags: ["health", "summary"] },
+      { id: 13, date: "20250710", title: "旅行計畫草稿", content: "預計 8 月中旬前往日本京都五日遊。", tags: ["travel", "plan", "draft"] },
+      { id: 14, date: "20250709", title: "產品命名腦力激盪", content: "嘗試以動物或自然為靈感發想產品名稱。", tags: ["brainstorm", "idea"] },
+      { id: 15, date: "20250708", title: "重構 login 流程", content: "將登入流程邏輯拆分為三層結構：驗證 / 存取 / 導向。", tags: ["debug", "setup"] },
+      { id: 16, date: "20250706", title: "7 月讀書紀錄", content: "閱讀《原子習慣》前五章筆記與反思。", tags: ["book", "habit", "journal"] },
+      { id: 17, date: "20250703", title: "新功能待辦清單", content: "1. 搜尋功能\n2. 匯出 CSV\n3. 簡報模式", tags: ["todo", "task", "priority"] },
+      { id: 18, date: "20250701", title: "六月財務整理", content: "收入：78,000；支出：52,400；結餘：25,600", tags: ["finance", "log", "summary"] },
+      { id: 19, date: "20250629", title: "提問清單", content: "1. 如何安全處理 token？\n2. 為何 useEffect 會重複觸發？", tags: ["question", "debug"] },
+      { id: 20, date: "20250620", title: "想法草稿：AI 知識筆記工具", content: "以 tag 與關聯為核心，支援 markdown 編輯與引用 API 整合。", tags: ["idea", "draft", "wishlist"] }
     ];
     setNotes(testNotes);
   }, [currentYear, currentMonth, navigate]);
@@ -152,8 +150,12 @@ export default function Home() {
   const handleAddNote = (title: string, content: string, date:string, tags: string[]) => {
     setLoadingAdd(true);
     addNote(title, content, date, tags)
-      .then(()=>{
-
+      .then((result)=>{
+        if(result.success) {
+          setLoadingAdd(false);
+          loadNotes();
+        }
+        else  alert(result.message);
       });
   }
 
@@ -171,6 +173,16 @@ export default function Home() {
             <div className={styles.button} onClick={handleNext}>▶</div>
           </div>
         </div>
+
+        { level == "month" &&
+          <div className={styles.weekdays}>
+            {weekdays.map((day, i) => (
+              <div key={i} className={styles.weekday}>
+                {day}
+              </div>
+            ))}
+          </div>
+        }
 
         <div className={styles.body}>
           {level === "year" && (
@@ -199,16 +211,11 @@ export default function Home() {
                 if (isValid)
                   return (
                     <div
-                      className={`${styles.dayBox} ${styles.valid}`}
+                      className={`${styles.dayBox} ${styles.valid} ${selectedDate==ymd ? styles.selected : ""} ${noteCountMap[ymd]? styles.haveNote : ""}`}
                       key={i}
-                      onClick={() => setSelectedDate(ymd)}
+                      onClick={() => {setSelectedDate(ymd); setAdding(false)}}
                     >
-                      <p className={styles.day}>{dayNum}</p>
-                      <div className={styles.dotContainer}>
-                        {Array.from({ length: noteCountMap[ymd] || 0 }).map((_, i) => (
-                          <span key={i} className={styles.dot} />
-                        ))}
-                      </div>
+                      {dayNum}
                     </div>
                   );
                 else
@@ -220,15 +227,17 @@ export default function Home() {
       </div>
 
       <div className={styles.notes}>
-        {notes.length === 0 && <div className={styles.notesLabel}>這個日期沒有筆記</div>}
-        {notes.map((note)=>{
-          if (note.date === selectedDate) {}
-            return(
-              <NoteEditor id={note.id} title={note.title} content={note.content} tags={note.tags} onSaved={handleNoteSave} onDeleted={handleNoteDelete} loading={loadingAdd || loadingDelete || loadingSave}/>
-            )
-        })}
-        {!adding && <div className={styles.button} onClick={()=>setAdding(true)}>+add</div>}
-        {adding && <NoteCreater date={selectedDate} onCreated={handleAddNote} loading={loadingAdd || loadingDelete || loadingSave}/>}
+        <div className={styles.notesContainer}>
+          {notes.filter((note) => note.date === selectedDate).length === 0 && !adding && <div className={styles.notesLabel}>這個日期沒有筆記</div>}
+          {notes.map((note)=>{
+            if (note.date === selectedDate) 
+              return(
+                <NoteEditor id={note.id} title={note.title} content={note.content} tags={note.tags} onSaved={handleNoteSave} onDeleted={handleNoteDelete} loading={loadingAdd || loadingDelete || loadingSave}/>
+              )
+          })}
+          {!adding && <div className={styles.button} onClick={()=>setAdding(true)}>新增</div>}
+          {adding && <NoteCreater date={selectedDate} onCreated={handleAddNote} onCancel={()=>setAdding(false)} loading={loadingAdd || loadingDelete || loadingSave} />}
+        </div>
       </div>
     </div>
   );

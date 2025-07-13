@@ -5,10 +5,11 @@ import { Tags } from "../../constants/Tags";
 type NoteCreaterProps = {
   date: string;
   onCreated: (title: string, content: string, date: string, tags: string[])=>void;
+  onCancel: ()=>void;
   loading: boolean;
 };
 
-export default function NoteCreater({date, onCreated, loading}: NoteCreaterProps) {
+export default function NoteCreater({date, onCreated, onCancel, loading}: NoteCreaterProps) {
   const [addingTag, setAddingTag] = useState<boolean>(false);
 
   const [title, setTitle] = useState<string>("");
@@ -24,34 +25,58 @@ export default function NoteCreater({date, onCreated, loading}: NoteCreaterProps
         </div>
         <div className={styles.ContentInput}>
           <a>Content</a>
-          <input value={content} onChange={(e)=>{setContent(e.target.value)}}/>
+          <textarea value={content} onChange={(e) => setContent(e.target.value)} />
         </div>
       </div>
       <div className={styles.tagField}>
-        { tags.map((tag)=>{
+        {tags.map((tag)=>{
           return (
-            <div className={styles.tag} onClick={()=>{}}>
+            <div key={tag} className={styles.tag}>
               {tag}
             </div>
           )
         })}
-        <div className={styles.addButton} onClick={()=>setAddingTag(true)}>+add</div>
-        { addingTag &&
-          <div className={styles.tagsContainer}>
-            {Tags.map((tag)=>{
-              if (!tags.includes(tag))
-              return (
-                <div className={styles.tagOption} onClick={()=>{}}>
-                  {tag}
-                </div>
-              )
-            })}                
-          </div>
-        }
+        {!addingTag && <div className={styles.editButton} onClick={()=>setAddingTag(true)}>edit tags</div>}
+        {addingTag && (
+          <div className={styles.tagEditor}>
+            <div className={styles.tagsContainer}>
+              {Tags.map((tag) => {
+                const isSelected = tags.includes(tag);
+                return (
+                  <div
+                    key={tag}
+                    className={`${styles.tag} ${isSelected ? styles.selected : ""}`}
+                    onClick={() => {
+                      if (isSelected) {
+                        setTags(tags.filter((t) => t !== tag));
+                      } else {
+                        setTags([...tags, tag]);
+                      }
+                    }}
+                  >
+                    {tag}
+                  </div>
+                );
+              })}
+            </div>
+            <div className={styles.editButton} onClick={() => setAddingTag(false)}>Done</div>
+          </div >
+        )}
       </div>
       <div className={styles.actions}>
-        <div className={`${styles.button} ${loading ? styles.disable : ""}`} onClick={()=>{onCreated(title, content, date, tags)}}>
+        <div 
+          className={`${styles.button} ${loading ? styles.disable : ""}`} 
+          onClick={()=>{
+            if (!loading && title.trim() && content.trim()) onCreated(title, content, date, tags);
+          }}
+        >
           Add
+        </div>
+        <div 
+          className={`${styles.button} ${loading ? styles.disable : ""}`} 
+          onClick={onCancel}
+        >
+          Cancel
         </div>
       </div>
     </div>

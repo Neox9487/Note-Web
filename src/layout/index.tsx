@@ -9,13 +9,13 @@ import fetchMe from "../api/user/me";
 
 const menuOptions = [
   {label: "Home", path: "/"},
-  {label: "Note", path: "/note"}
+  {label: "Notes", path: "/note"}
 ]
 
 export default function Layout() {
   const [loading, setLoading] = useState<boolean>(true); 
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
-  const [showTags, setShowTags] = useState<boolean>(true); 
+  const [showTags, setShowTags] = useState<boolean>(false); 
   
   const [username, setUsername] = useState<string>("");
   const [query, setQuery] = useState<string>("");
@@ -122,9 +122,29 @@ export default function Layout() {
             <div className={styles.menuButton} ref={menuButtonRef} onClick={() => setMenuOpened((prev) => !prev)}>
               ☰
             </div>
+            {menuOpened &&
+              <div className={styles.menu} ref={menuRef}>
+                {menuOptions.map((option, index) => {
+                  const animClass = menuOpened ? styles.fadeIn : styles.fadeOut;
+                  return (
+                    <div
+                      key={index}
+                      className={`${styles.menuOption} ${animClass}`}
+                      onClick={() => {
+                        navigate(option.path);
+                        setMenuOpened(false);
+                      }}
+                    >
+                      {option.label}
+                    </div>
+                  );
+                })}
+              </div>
+            }
             <div className={styles.searchBar} ref={searchBarRef}>
               <input 
                 className={styles.inputField}
+                placeholder="Search your notes here ....."
                 value={query}
                 onChange={(e)=>{setQuery(e.target.value)}}
                 onClick={()=>{setShowTags(true)}}
@@ -153,23 +173,6 @@ export default function Layout() {
             </div>
           </div>
           <div className={styles.body}>
-            {menuOpened &&
-              <div className={styles.menu} ref={menuRef}>
-                {menuOptions.map((option) =>{
-                  return (
-                    <div 
-                      className={styles.menuOption}
-                      onClick={()=>{
-                        navigate(option.path)
-                        setMenuOpened(false);
-                      }}
-                    >
-                      {option.label}
-                    </div>
-                  )
-                })}
-              </div>
-            }
             <Outlet/>
           </div>
         </div>
