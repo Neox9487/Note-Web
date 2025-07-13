@@ -37,7 +37,14 @@ export default function NoteEditor({
     <div key={id} className={styles.wrapper}>
       <div className={styles.label}>
         <div className={styles.title}>{title}</div>
-        <div className={styles.triangle} onClick={() => setOpened(!opened)}>{opened ? "▲" : "▼"}</div>
+        <div 
+          className={styles.triangle} 
+          onClick={() => {
+            setOpened(!opened);
+            setChangedTags(tags);
+          }}>
+            {opened ? "▲" : "▼"}
+        </div>
       </div>
       {opened && (
         <div className={styles.editor}>
@@ -57,7 +64,11 @@ export default function NoteEditor({
           </div>
           <div className={styles.tagField}>
             {changedTags.map((tag) => (
-              <div className={styles.tag} key={tag}>
+              <div 
+                className={styles.tag} 
+                key={tag} 
+                onClick={()=>{setChangedTags(changedTags.filter(_tag => _tag !== tag))}}
+              >
                 {tag}
               </div>
             ))}

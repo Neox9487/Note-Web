@@ -139,6 +139,10 @@
         font-size: 16px;
         font-weight: bold;
         color: $text-color-2;
+
+        &:hover {
+          cursor: pointer;
+        }
       }
 
       .addButton {
@@ -154,6 +158,7 @@
         transition: color 0.2s ease, background-color 0.2s ease;
 
         &:hover {
+          cursor: pointer;
           background-color: $fourth-color;
           color: $text-color-2;
         }
@@ -168,6 +173,7 @@
         margin-top: 8px;
         gap: 6px;
         z-index: 1000;
+        width: 95%;
 
         background: $second-color;
         border: 2px solid $third-color;
@@ -187,6 +193,7 @@
           transition: color 0.2s ease, background-color 0.2s ease;
 
           &:hover {
+            cursor: pointer;
             background-color: $fourth-color;
             color: $text-color-2;
           }
@@ -205,6 +212,7 @@
         transition: color 0.2s ease, background-color 0.2s ease;
 
         &:hover {
+          cursor: pointer;
           background-color: $third-color;
           color: $text-color-2;
         }
@@ -215,9 +223,8 @@
       position: relative;
       display: flex;
       justify-content: space-between;
-      margin-top: 10px;
+      margin-top: 20px;
       margin-bottom: 5px;
-      width: 100%;
 
       .button {
         padding: 5px;
@@ -232,7 +239,7 @@
       }
 
       .enable {
-        color: $first-color;
+        color: $third-color;
         background-color:$text-color-1;
 
         &:hover {
@@ -243,8 +250,13 @@
       }
 
       .disable {
-        color: #8d8d8d;
-        background-color: $third-color;
+        color: $fourth-color;
+        background-color: $text-color-1;
+
+        &:hover {
+          color: $fourth-color;
+          background-color: $text-color-1;
+        }
       }
     }
   }

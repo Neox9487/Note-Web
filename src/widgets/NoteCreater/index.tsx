@@ -42,7 +42,7 @@ export default function NoteCreater({date, onCreated, onCancel, loading}: NoteCr
       <div className={styles.tagField}>
         {tags.map((tag)=>{
           return (
-            <div key={tag} className={styles.tag}>
+            <div key={tag} className={styles.tag} onClick={()=>{setTags(tags.filter(_tag => _tag !== tag))}}>
               {tag}
             </div>
           )
@@ -76,7 +76,9 @@ export default function NoteCreater({date, onCreated, onCancel, loading}: NoteCr
         <div 
           className={`${styles.button} ${loading ? styles.disable : ""}`} 
           onClick={()=>{
-            if (!loading && title.trim() && content.trim()) onCreated(title, content, date, tags);
+            if (!loading && title.trim() && content.trim()) {
+              onCreated(title, content, date, tags);
+            }
           }}
         >
           Add
