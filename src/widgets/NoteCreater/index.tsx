@@ -17,13 +17,24 @@ export default function NoteCreater({date, onCreated, onCancel, loading}: NoteCr
   const [tags, setTags] = useState<string[]>([]);
 
   return (
-    <div className={styles.wrapper}>
+    <div key="creator" className={styles.wrapper}>
+      <div className={styles.label}>
+        <div className={styles.title} >
+          新增筆記
+        </div>
+        <div 
+          className={styles.cancel} 
+          onClick={()=>{if(!loading) onCancel()}}
+        >
+          取消
+        </div>
+      </div>
       <div className={styles.inputField}>
         <div className={styles.titleInput}>
           <a>Title</a>
           <input value={title} onChange={(e)=>{setTitle(e.target.value)}}/>
         </div>
-        <div className={styles.ContentInput}>
+        <div className={styles.contentInput}>
           <a>Content</a>
           <textarea value={content} onChange={(e) => setContent(e.target.value)} />
         </div>
@@ -36,30 +47,28 @@ export default function NoteCreater({date, onCreated, onCancel, loading}: NoteCr
             </div>
           )
         })}
-        {!addingTag && <div className={styles.editButton} onClick={()=>setAddingTag(true)}>edit tags</div>}
+        {!addingTag && <div className={styles.addButton} onClick={()=>setAddingTag(true)}>+add</div>}
         {addingTag && (
-          <div className={styles.tagEditor}>
-            <div className={styles.tagsContainer}>
-              {Tags.map((tag) => {
-                const isSelected = tags.includes(tag);
-                return (
-                  <div
-                    key={tag}
-                    className={`${styles.tag} ${isSelected ? styles.selected : ""}`}
-                    onClick={() => {
-                      if (isSelected) {
-                        setTags(tags.filter((t) => t !== tag));
-                      } else {
-                        setTags([...tags, tag]);
-                      }
-                    }}
-                  >
-                    {tag}
-                  </div>
-                );
-              })}
-            </div>
-            <div className={styles.editButton} onClick={() => setAddingTag(false)}>Done</div>
+          <div className={styles.tagsContainer}>
+            {Tags.filter((tag) => !tags.includes(tag)).map((tag) => {
+              const isSelected = tags.includes(tag);
+              return (
+                <div
+                  key={tag}
+                  className={`${styles.tagOption} ${isSelected ? styles.selected : ""}`}
+                  onClick={() => {
+                    if (isSelected) {
+                      setTags(tags.filter((t) => t !== tag));
+                    } else {
+                      setTags([...tags, tag]);
+                    }
+                  }}
+                >
+                  {tag}
+                </div>
+              );
+            })}
+            <div className={styles.closeButton} onClick={() => setAddingTag(false)}>Close</div>
           </div >
         )}
       </div>
@@ -71,12 +80,6 @@ export default function NoteCreater({date, onCreated, onCancel, loading}: NoteCr
           }}
         >
           Add
-        </div>
-        <div 
-          className={`${styles.button} ${loading ? styles.disable : ""}`} 
-          onClick={onCancel}
-        >
-          Cancel
         </div>
       </div>
     </div>
