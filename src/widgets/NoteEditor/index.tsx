@@ -23,7 +23,6 @@ export default function NoteEditor({
 }: Note) {
   const [opened, setOpened] = useState<boolean>(false);
   const [addingTag, setAddingTag] = useState<boolean>(false);
-  const [editing, setEditing] = useState<boolean>(false);
 
   const [changedTitle, setChangedTitle] = useState<string>(title);
   const [changedContent, setChangedContent] = useState<string>(content);
