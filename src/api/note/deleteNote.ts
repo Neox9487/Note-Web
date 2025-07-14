@@ -7,6 +7,9 @@ type Result = {
 
 export default async function deleteNote(id: number): Promise<Result> {
   const accessToken = localStorage.getItem("access_token");
+  if (!accessToken) {
+    return { success: false, message: "未登入"};
+  }
   try {
     await axios.delete(`${import.meta.env.VITE_API_URL}/note/${encodeURIComponent(id)}`, {
       headers: {

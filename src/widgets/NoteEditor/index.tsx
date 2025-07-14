@@ -56,7 +56,6 @@ export default function NoteEditor({
             />
           </div>
           <div className={styles.contentInput}>
-            <a>Content</a>
             <textarea
               value={changedContent}
               onChange={(e) => setChangedContent(e.target.value)}

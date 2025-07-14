@@ -35,7 +35,6 @@ export default function NoteCreater({date, onCreated, onCancel, loading}: NoteCr
           <input value={title} onChange={(e)=>{setTitle(e.target.value)}}/>
         </div>
         <div className={styles.contentInput}>
-          <a>Content</a>
           <textarea value={content} onChange={(e) => setContent(e.target.value)} />
         </div>
       </div>

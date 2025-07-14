@@ -16,6 +16,9 @@ type Result = {
 
 export default async function getNotesByMonth(year: number, month: number): Promise<Result> {
   const accessToken = localStorage.getItem("access_token");
+  if (!accessToken) {
+    return { success: false, message: "未登入", notes:[]};
+  }
   try {
     const res = await axios.get(`${import.meta.env.VITE_API_URL}/note/getByMonth`, {
       headers: {
