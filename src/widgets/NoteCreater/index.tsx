@@ -80,7 +80,7 @@ export default function NoteCreater({date, onCreated, onCancel, loading}: NoteCr
             }
           }}
         >
-          Add
+          新增
         </div>
       </div>
     </div>

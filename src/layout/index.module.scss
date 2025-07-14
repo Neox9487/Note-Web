@@ -60,19 +60,50 @@
       }
     }
 
-    .username {
+    .userSection {
       user-select: none;
-      border-radius: 10px;
-      padding: 5px;
 
-      color: $text-color-1;
-      font-size: 20px;
-      font-weight: bold;
-      transition: color 0.2s ease;
+      .username {
+        border-radius: 10px;
+        padding: 5px;
 
-      &:hover {
-        color: $text-color-2;
-        cursor: pointer;
+        color: $accent-color;
+        font-size: 20px;
+        font-weight: bold;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: $accent-color-hover;
+          cursor: pointer;
+        }
+
+
+      }
+
+      .userMenu {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: $second-color;
+        border-radius: 10px;
+        margin-top: 10px;
+        
+        .button {
+          font-size: 18px;
+          font-weight: bold;
+          color: $text-color-1;
+          border-radius: 10px;
+          padding: 10px;
+
+          transition: color 0.2s ease, background-color 0.2s ease;
+
+          &:hover {
+            cursor: pointer;
+            background-color: $third-color;
+            color: $text-color-2;
+          }
+        }
       }
     }
 
@@ -150,7 +181,6 @@
   .body {
     position: relative;
     display: flex;
-    flex: 1;
     flex-direction: row;
     align-items: center;
 

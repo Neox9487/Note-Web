@@ -1,4 +1,10 @@
+@font-face {
+  font-family: "Seto";
+  src: url("./fonts/SetoFont.ttf") format("truetype");
+}
+
 body {
   margin: 5px;
   background-color: $first-color;
+  font-family: "Seto", sans-serif;;
 }

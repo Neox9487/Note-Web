@@ -53,22 +53,22 @@ export default function Home() {
   }, [notes]);
 
   useEffect(() => {
-    // loadNotes();
+    loadNotes();
 
     // test
-    const testNotes = [
-      { id: 11, date: "20250712", title: "週會紀要", content: "與團隊討論新版 API 設計與時程。", tags: ["meeting", "api"] },
-      { id: 12, date: "20250711", title: "健檢報告摘要", content: "膽固醇偏高，需要注意飲食與運動。", tags: ["health", "summary"] },
-      { id: 13, date: "20250710", title: "旅行計畫草稿", content: "預計 8 月中旬前往日本京都五日遊。", tags: ["travel", "plan", "draft"] },
-      { id: 14, date: "20250709", title: "產品命名腦力激盪", content: "嘗試以動物或自然為靈感發想產品名稱。", tags: ["brainstorm", "idea"] },
-      { id: 15, date: "20250708", title: "重構 login 流程", content: "將登入流程邏輯拆分為三層結構：驗證 / 存取 / 導向。", tags: ["debug", "setup"] },
-      { id: 16, date: "20250706", title: "7 月讀書紀錄", content: "閱讀《原子習慣》前五章筆記與反思。", tags: ["book", "habit", "journal"] },
-      { id: 17, date: "20250703", title: "新功能待辦清單", content: "1. 搜尋功能\n2. 匯出 CSV\n3. 簡報模式", tags: ["todo", "task", "priority"] },
-      { id: 18, date: "20250701", title: "六月財務整理", content: "收入：78,000；支出：52,400；結餘：25,600", tags: ["finance", "log", "summary"] },
-      { id: 19, date: "20250629", title: "提問清單", content: "1. 如何安全處理 token？\n2. 為何 useEffect 會重複觸發？", tags: ["question", "debug"] },
-      { id: 20, date: "20250620", title: "想法草稿：AI 知識筆記工具", content: "以 tag 與關聯為核心，支援 markdown 編輯與引用 API 整合。", tags: ["idea", "draft", "wishlist"] }
-    ];
-    setNotes(testNotes);
+    // const testNotes = [
+    //   { id: 11, date: "20250712", title: "週會紀要", content: "與團隊討論新版 API 設計與時程。", tags: ["meeting", "api"] },
+    //   { id: 12, date: "20250711", title: "健檢報告摘要", content: "膽固醇偏高，需要注意飲食與運動。", tags: ["health", "summary"] },
+    //   { id: 13, date: "20250710", title: "旅行計畫草稿", content: "預計 8 月中旬前往日本京都五日遊。", tags: ["travel", "plan", "draft"] },
+    //   { id: 14, date: "20250709", title: "產品命名腦力激盪", content: "嘗試以動物或自然為靈感發想產品名稱。", tags: ["brainstorm", "idea"] },
+    //   { id: 15, date: "20250708", title: "重構 login 流程", content: "將登入流程邏輯拆分為三層結構：驗證 / 存取 / 導向。", tags: ["debug", "setup"] },
+    //   { id: 16, date: "20250706", title: "7 月讀書紀錄", content: "閱讀《原子習慣》前五章筆記與反思。", tags: ["book", "habit", "journal"] },
+    //   { id: 17, date: "20250703", title: "新功能待辦清單", content: "1. 搜尋功能\n2. 匯出 CSV\n3. 簡報模式", tags: ["todo", "task", "priority"] },
+    //   { id: 18, date: "20250701", title: "六月財務整理", content: "收入：78,000；支出：52,400；結餘：25,600", tags: ["finance", "log", "summary"] },
+    //   { id: 19, date: "20250629", title: "提問清單", content: "1. 如何安全處理 token？\n2. 為何 useEffect 會重複觸發？", tags: ["question", "debug"] },
+    //   { id: 20, date: "20250620", title: "想法草稿：AI 知識筆記工具", content: "以 tag 與關聯為核心，支援 markdown 編輯與引用 API 整合。", tags: ["idea", "draft", "wishlist"] }
+    // ];
+    // setNotes(testNotes);
   }, [currentYear, currentMonth, navigate]);
 
   const loadNotes = () => {
@@ -130,9 +130,15 @@ export default function Home() {
           setLoadingSave(false);
           loadNotes();
         }
-        else 
+        else {
           alert(result.message);
+          navigate("/login");
+        }
       })
+      .catch(()=>{
+        alert("發生未知錯誤，請重新登入");
+        navigate("/login");
+      });
   }
 
   const handleNoteDelete = (id: number) => {
@@ -143,9 +149,15 @@ export default function Home() {
           setLoadingDelete(false);
           loadNotes();
         }
-        else 
+        else {
           alert(result.message);
+          navigate("/login");
+        }
       })
+      .catch(()=>{
+        alert("發生未知錯誤，請重新登入");
+        navigate("/login");
+      });
   }
 
   const handleAddNote = (title: string, content: string, date:string, tags: string[]) => {
@@ -157,6 +169,10 @@ export default function Home() {
           loadNotes();
         }
         else  alert(result.message);
+      })
+      .catch(()=>{
+        alert("發生未知錯誤，請重新登入");
+        navigate("/login");
       });
   }
 
@@ -233,7 +249,7 @@ export default function Home() {
           {notes.map((note)=>{
             if (note.date === selectedDate) 
               return(
-                <NoteEditor id={note.id} title={note.title} content={note.content} tags={note.tags} onSaved={handleNoteSave} onDeleted={handleNoteDelete} loading={loadingAdd || loadingDelete || loadingSave}/>
+                <NoteEditor id={note.id} title={note.title} content={note.content} tags={note.tags} date={note.date} onSaved={handleNoteSave} onDeleted={handleNoteDelete} loading={loadingAdd || loadingDelete || loadingSave}/>
               )
           })}
           {!adding && <div className={styles.button} onClick={()=>setAdding(true)}>新增</div>}

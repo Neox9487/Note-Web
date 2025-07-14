@@ -7,6 +7,7 @@ type Note = {
   title: string;
   content: string;
   tags: string[];
+  date: string,
   onSaved: (id: number, title: string, content: string, tags: string[]) => void;
   onDeleted: (id: number) => void;
   loading: boolean;
@@ -17,6 +18,7 @@ export default function NoteEditor({
   title,
   content,
   tags,
+  date,
   onSaved,
   onDeleted,
   loading,
@@ -33,10 +35,19 @@ export default function NoteEditor({
     changedContent !== content ||
     JSON.stringify(changedTags) !== JSON.stringify(tags);
 
+  const transformDateString = (date:string) => {
+    const year = date.slice(0,4);
+    const month = date.slice(4,6);
+    const day = date.slice(6,8);
+
+    return(`${year}/${month}/${day}`);
+  }
+
   return (
     <div key={id} className={styles.wrapper}>
       <div className={styles.label}>
         <div className={styles.title}>{title}</div>
+        <div className={styles.date}>{transformDateString(date)}</div>
         <div 
           className={styles.triangle} 
           onClick={() => {

@@ -6,16 +6,18 @@ import { Tags } from "../constants/Tags";
 
 import Loading from "../widgets/Loading";
 import fetchMe from "../api/user/me";
+import logout from "../api/user/logout";
 
 const menuOptions = [
   {label: "Home", path: "/"},
-  {label: "Notes", path: "/note"}
+  {label: "Notes", path: "/notes"}
 ]
 
 export default function Layout() {
   const [loading, setLoading] = useState<boolean>(true); 
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
   const [showTags, setShowTags] = useState<boolean>(false); 
+  const [showUserMenu, setShowUserMenu] = useState<boolean>(false); 
   
   const [username, setUsername] = useState<string>("");
   const [query, setQuery] = useState<string>("");
@@ -27,6 +29,7 @@ export default function Layout() {
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLDivElement>(null);
   const searchBarRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
 
@@ -36,30 +39,30 @@ export default function Layout() {
 
     setTags(Tags);
 
-    // if(!localStorage.getItem("access_token")) {
-    //   alert("未登入");
-    //   navigate("/login");
-    // }
+    if(!localStorage.getItem("access_token")) {
+      alert("未登入");
+      navigate("/login");
+    }
 
-    // fetchMe()
-    //   .then((result)=>{
-    //     if(result.success && result.username!=null) {
-    //       setUsername(result.username);
-    //       setLoading(false);
-    //     }
-    //     else {
-    //       alert("驗證失敗，請重新登入");
-    //       navigate("/login");
-    //     }
-    //   })
-    //   .catch(()=>{
-    //     alert("無法連接伺服器");
-    //     navigate("/login");
-    //   })
+    fetchMe()
+      .then((result)=>{
+        if(result.success && result.username!=null) {
+          setUsername(result.username);
+          setLoading(false);
+        }
+        else {
+          alert("驗證失敗，請重新登入");
+          navigate("/login");
+        }
+      })
+      .catch(()=>{
+        alert("無法連接伺服器");
+        navigate("/login");
+      })
 
     // test
-    setUsername("Username");
-    setLoading(false);
+    // setUsername("Username");
+    // setLoading(false);
   }, [])
 
   useEffect(() => {
@@ -94,12 +97,27 @@ export default function Layout() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(target) 
+      ) 
+        setShowUserMenu(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const onSearch = (query: string, tags: string[]) => {
     const params = new URLSearchParams();
     tags.forEach((tag) => {
       params.append("tags", tag)
     })
-    navigate(`/search?q=${query}&${params.toString()}`);
+    navigate(`/notes?q=${query}&${params.toString()}`);
   };
 
   const toggleTag = (tag: string) => {
@@ -110,6 +128,21 @@ export default function Layout() {
       newSelected = [...selectedTags, tag];
     }
     setSelectedTags(newSelected);
+  };
+
+  const handleLogout = () => {
+    logout()
+      .then((result) => {
+        if (!result.success) {
+          alert(result.message);
+        }
+      })
+      .catch(() => {
+        alert("發生未知錯誤");
+      })
+      .finally(() => {
+        navigate("/login");
+      });
   };
 
   return (
@@ -168,9 +201,16 @@ export default function Layout() {
                 </div>
               }
             </div>
-            <div className={styles.username}>
-              {username}
-            </div>
+            <div className={styles.userSection} ref={userMenuRef}>
+              <div className={styles.username} onClick={()=>setShowUserMenu(true)}>
+                {username}
+              </div>
+              {showUserMenu &&
+                <div className={styles.userMenu}>
+                  <div className={styles.button} onClick={handleLogout}>Logout</div>
+                </div>
+              }
+              </div>
           </div>
           <div className={styles.body}>
             <Outlet/>

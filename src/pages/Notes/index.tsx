@@ -37,9 +37,15 @@ export default function Notes() {
           setLoadingSave(false);
           loadNotes();
         }
-        else 
+        else {
           alert(result.message);
+          navigate("/login");
+        }
       })
+      .catch(()=>{
+        alert("發生未知錯誤，請重新登入");
+        navigate("/login");
+      });
   }
   
   const handleNoteDelete = (id: number) => {
@@ -50,9 +56,15 @@ export default function Notes() {
           setLoadingDelete(false);
           loadNotes();
         }
-        else 
+        else {
           alert(result.message);
+          navigate("/login");
+        }
       })
+      .catch(()=>{
+        alert("發生未知錯誤，請重新登入");
+        navigate("/login");
+      });
   }
 
   const loadNotes = () => {
@@ -79,24 +91,23 @@ export default function Notes() {
   // test
   const allTestNotes: Note[] = Array.from({ length: 30 }, (_, i) => ({
     id: i + 1,
-    date: "2025-07-14",
+    date: "2025071"+i.toString(),
     title: `筆記 ${i + 1}`,
     content: `這是第 ${i + 1} 筆測試內容`,
     tags: i % 2 === 0 ? ["work"] : ["log"],
   }));
 
-
   useEffect(() => {
     loadNotes()
-    
+
     // test 
-    // const perPage = 10;
+    // const perPage = 20;
     // const start = (page - 1) * perPage;
     // const end = start + perPage;
     // const pagedNotes = allTestNotes.slice(start, end);
-
     // setNotes(pagedNotes);
     // setTotalPages(Math.ceil(allTestNotes.length / perPage));
+
   }, [page]);
 
   return (
@@ -104,7 +115,7 @@ export default function Notes() {
       <div className={styles.notesContainer}>
         {notes.map((note)=>{
           return(
-            <NoteEditor id={note.id} title={note.title} content={note.content} tags={note.tags} onDeleted={handleNoteDelete} onSaved={handleNoteSave} loading={loadingDelete || loadingSave}/>
+            <NoteEditor id={note.id} title={note.title} content={note.content} tags={note.tags} date={note.date} onDeleted={handleNoteDelete} onSaved={handleNoteSave} loading={loadingDelete || loadingSave}/>
           )
         })}
       </div>

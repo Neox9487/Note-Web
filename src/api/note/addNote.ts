@@ -13,11 +13,10 @@ export default async function addNote(
   tags: string[] 
 ): Promise<Result> {
   const accessToken = localStorage.getItem("access_token");
+  if (!accessToken) {
+    return { success: false, message: "未登入", id: -1};
+  }
   try {
-
-    if (!accessToken) {
-      return { success: false, message: "未登入", id: -1};
-    }
     const result = await axios.post(
       `${import.meta.env.VITE_API_URL}/note/add`,
       { title, content, date, tags },

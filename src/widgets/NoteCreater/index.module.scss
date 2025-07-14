@@ -218,17 +218,17 @@
   .actions {
     position: relative;
     display: flex;
-    justify-content: space-between;
+    justify-content: right;
     margin-top: 20px;
     margin-bottom: 5px;
     width: 100%;
     
     .button {
-      padding: 5px;
-      margin-left: 15px;
+      padding: 7px;
+      margin-right: 1%;
       border-radius: 10px;
 
-      font-size: 16px;
+      font-size: 20px;
       font-weight: bold;
       color: $third-color;
       background-color:$text-color-1;
