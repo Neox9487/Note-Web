@@ -13,8 +13,8 @@ export default async function fetchMe(): Promise<AuthResult> {
     return { success: false, message: "未登入", username: null};
   }
 
-  const handleSuccess = (username: string): AuthResult => {
-    return { success: true, message: "", username: username};
+  const handleSuccess = (message: string, username: string): AuthResult => {
+    return { success: true, message: message, username: username};
   };
 
   const callApi = (token: string) => {
@@ -32,23 +32,27 @@ export default async function fetchMe(): Promise<AuthResult> {
 
   try {
     const result = await callApi(accessToken);
-    return handleSuccess(result.data.username);
+    return handleSuccess(result.data.message, result.data.username);
   } 
   catch (err: unknown) {
-    const refreshed = await refresh();
-    if (!refreshed.success) {
-      return { success: false, message: "登入逾時，請重新登入", username: null};
+    const refreshResult = await refresh();
+
+    if (!refreshResult.success) {
+      return { success: false, message: refreshResult.message, username: null };
     }
-    const newAccessToken = localStorage.getItem("access_token");
-    if (!newAccessToken) {
-      return { success: false, message: "驗證失敗，請重新登入", username: null};
+
+    const newToken = localStorage.getItem("access_token");
+
+    if (!newToken) {
+      return { success: false, message: "重新登入失敗", username: null };
     }
 
     try {
-      const result = await callApi(newAccessToken);
-      return handleSuccess(result.data.username);
-    } catch {
-      return { success: false, message: "驗證失敗，請重新登入", username: null};
+      const retryResult = await callApi(newToken);
+      return { success: true, message: retryResult.data.message, username: retryResult.data.username };
+    } 
+    catch {
+      return { success: false, message: "重新登入後仍無法驗證身份", username: null };
     }
   }
 }
